@@ -1,3 +1,4 @@
+#include <time.h>
 #include <cmath>
 #include <iostream>
 
@@ -64,6 +65,83 @@ class Vector3D {
   }
   double anglebetween(Vector3D& vec) const {
     return acos((this->dot(vec)) / (this->mag() * vec.mag()));
+  }
+};
+
+class JulianDate {
+ private:
+  static int EPOCH;
+  int mon;
+  int day;
+  int year;
+  int hour;
+  int min;
+  int second;
+  double jday;  
+
+ public:
+  time_t theTime = time(NULL);
+  struct tm* aTime = localtime(&theTime);
+  JulianDate(int year, int mon, int day, int hour, int min, int second)
+      : year(year), mon(mon), day(day), hour(hour), min(min), second(second) {}
+
+  JulianDate() {
+    year = aTime->tm_year + 1900;
+    mon = aTime->tm_mon + 1;
+    day = aTime->tm_mday;
+    hour = aTime->tm_hour;
+    min = aTime->tm_min;
+    second = aTime->tm_sec;
+  }
+
+  int getYear() const { return year; }
+  int getMonth() const { return mon; }
+  int getDay() const { return day; }
+
+  int getHour() const { return hour; }
+
+  int getMin() const { return min; }
+
+  int getSec() const { return second; }
+
+  double getJDay() const { return jday; }
+
+  double JD(JulianDate b) {
+    double JDN = ((1461 * (b.year + 4800 + (b.mon - 14) / 12)) / 4 +
+                  (367 * (b.mon - 2 - 12 * ((b.mon - 14) / 12))) / 12 -
+                  (3 * ((b.year + 4900 + (b.year - 14) / 12) / 100)) / 4 +
+                  b.day - 32075) +
+                 (((b.hour + 12.0) / 24)) + (b.min / 1440.0) +
+                 (b.second / 86400.0);
+
+    return JDN;
+  }
+
+  friend double operator-(JulianDate left, JulianDate right) {
+    return left.JD(left) - right.JD(right);
+  }
+
+  friend JulianDate operator+(JulianDate left, int a) {
+    left.day = left.day + a;
+    double JD2 = left.JD(left);
+
+    int l = JD2 + 68569.5;
+    int n = (4 * l) / 146097;
+    l = l - (146097 * n + 3) / 4;
+    int i = (4000 * (l + 1)) / 1461001;
+    l = l - (1461 * i) / 4 + 31;
+    int j = (80 * l) / 2447;
+    int d = (l - (2447 * j) / 80);
+    l = j / 11;
+    int m = j + 2 - (12 * l);
+    int y = 100 * (n - 49) + i + l;
+    return JulianDate(y, m, d, left.hour, left.min, left.second);
+  }
+
+  friend ostream& operator<<(ostream& s, const JulianDate& J) {
+    return s << "\nyear: " << J.year << "\nmonth: " << J.mon
+             << "\nday: " << J.day << "\nhour: " << J.hour
+             << "\nminute: " << J.min << "\nsecond: " << J.second << '\n';
   }
 };
 
