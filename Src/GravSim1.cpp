@@ -1,6 +1,10 @@
 #include <time.h>
 #include <cmath>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -83,7 +87,13 @@ class JulianDate {
   time_t theTime = time(NULL);
   struct tm* aTime = localtime(&theTime);
   JulianDate(int year, int mon, int day, int hour, int min, int second)
-      : year(year), mon(mon), day(day), hour(hour), min(min), second(second) {}
+      : year(year), mon(mon), day(day), hour(hour), min(min), second(second) {
+    jday = ((1461 * (year + 4800 + (mon - 14) / 12)) / 4 +
+            (367 * (mon - 2 - 12 * ((mon - 14) / 12))) / 12 -
+            (3 * ((year + 4900 + (year - 14) / 12) / 100)) / 4 + day -
+            32075) +
+           (((hour + 12.0) / 24)) + (min / 1440.0) + (second / 86400.0);
+      }
 
   JulianDate() {
     year = aTime->tm_year + 1900;
@@ -92,6 +102,10 @@ class JulianDate {
     hour = aTime->tm_hour;
     min = aTime->tm_min;
     second = aTime->tm_sec;
+    jday = ((1461 * (year + 4800 + (mon - 14) / 12)) / 4 +
+            (367 * (mon - 2 - 12 * ((mon - 14) / 12))) / 12 -
+            (3 * ((year + 4900 + (year - 14) / 12) / 100)) / 4 + day - 32075) +
+           (((hour + 12.0) / 24)) + (min / 1440.0) + (second / 86400.0);
   }
 
   int getYear() const { return year; }
@@ -145,43 +159,58 @@ class JulianDate {
   }
 };
 
+class Body {
+  private :
+   Vector3D position;
+   Vector3D velocity;
+   Vector3D acceleration;
+
+   string name;
+   string orbits;
+
+
+   double mass;
+   double diameter;
+   double Perhelion;
+   double Aphelion;
+   
+
+  public:
+   Body()
+       : name(),
+         orbits(),
+         mass(),
+         diameter(),
+         Perhelion(),
+         Aphelion(),
+         position(),
+         velocity(),
+         acceleration() {}
+
+   Vector3D getPosition()const  { return position; }
+   Vector3D getVelocity() const { return position; }
+   Vector3D getAcceleration()const { return acceleration; }
+   string getName() const{ return name; }
+   double getMass() const { return mass; }
+   double getDiameter() const { return diameter; }
+
+   friend ostream& operator<<(ostream& s, const Body b) {
+     return s << b.name << " " << b.position << " " << b.acceleration << " " << b.velocity << " " << endl;
+   }
+
+   friend istream& operator>>(istream& s, Body& b) {
+     string linebuff;
+     getline(s, linebuff);
+     istringstream line(linebuff);
+     line >> b.name >> b.orbits >> b.mass >> b.diameter >> b.Perhelion >> b.Aphelion;
+     return s;
+   }
+};
+
 int main() {
   ///========testing purposes=========== //
-  Vector3D a;
-  Vector3D b(1, 3, 5);
-  Vector3D c(4, 4, 6);
+  
+  
 
-  Vector3D d = b + c;
-  Vector3D e = b - c;
-  Vector3D f = b * c;
-  Vector3D g = b / c;
-
-  Vector3D j = 1.56 * b;
-  Vector3D k = b * 1.56;
-  Vector3D i = 1.56 / b;
-  Vector3D z = b / 1.56;
-
-  cout << b.dot(c) << endl;
-  cout << b.mag() << endl;
-  cout << b.dist(c) << endl;
-  cout << b.normalize() << endl;
-  cout << b.perpendicular() << endl;
-  cout << b.cross(c) << endl;
-  cout << b.anglebetween(c) << endl;
-
-  cout << endl;
-  cout << endl;
-
-  cout << a << endl;
-  cout << b << endl;
-  cout << c << endl;
-  cout << d << endl;
-  cout << e << endl;
-  cout << f << endl;
-  cout << g << endl;
-  cout << j << endl;
-  cout << k << endl;
-  cout << i << endl;
-  cout << z << endl;
   ///========testing purposes=========== //
 }
