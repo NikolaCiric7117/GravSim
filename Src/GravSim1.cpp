@@ -214,8 +214,9 @@ class Body {
 
   static void setPosition(vector<Body*> bodies) {  
     JulianDate currentTime;
+    
     double dayNumber = currentTime.getJDay() - 2451543.5;
-    for (auto b: bodies) {
+    for (auto b : bodies) {
       string name = b->name;
       if (b->name == "mercury") {
         double N = 48.3313 + 3.24587E-5 * dayNumber;
@@ -234,15 +235,17 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1 - (e * e)) * sin(E);
+
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
+        
+        double x = a * (cos(E*M_PI/180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E*M_PI/180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly);
-        b->position.y = b->distFromSun * sin(b->trueAnomly);
+        b->position.x = b->distFromSun * cos(b->trueAnomly*M_PI/180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly*M_PI/180);
 
       } else if (b->name == "venus") {
         double N = 76.6799 + 2.46590E-5 * dayNumber;
@@ -261,18 +264,17 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1- e * e) * sin(E);
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
 
-        b->distFromSun = sqrt((x * x) + (y * y));
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
+
+        b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x =
-            b->distFromSun * cos(b->trueAnomly);
-        b->position.y =
-            b->distFromSun * sin(b->trueAnomly);
-       
+        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+
       } else if (b->name == "mars") {
         double N = 49.5574 + 2.11081E-5 * dayNumber;
         double i = 1.8497 - 1.78E-8 * dayNumber;
@@ -290,18 +292,17 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1-e * e) * sin(E);
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
+
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x =
-            b->distFromSun * cos(b->trueAnomly);
-        b->position.y =
-            b->distFromSun * sin(b->trueAnomly);
-       
+        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+
       } else if (b->name == "jupiter") {
         double N = 100.4542 + 2.76854E-5 * dayNumber;
         double i = 1.3030 - 1.557E-7 * dayNumber;
@@ -319,18 +320,17 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1-e * e) * sin(E);
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
+
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x =
-            b->distFromSun * cos(b->trueAnomly);
-        b->position.y =
-            b->distFromSun * sin(b->trueAnomly);
-        
+        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+
       } else if (b->name == "saturn") {
         double N = 113.6634 + 2.38980E-5 * dayNumber;
         double i = 2.4886 - 1.081E-7 * dayNumber;
@@ -348,18 +348,17 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1-e * e) * sin(E);
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
+
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x =
-            b->distFromSun * cos(b->trueAnomly);
-        b->position.y =
-            b->distFromSun * sin(b->trueAnomly);
-        
+        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+
       } else if (b->name == "uranus") {
         double N = 74.0005 + 1.3978E-5 * dayNumber;
         double i = 0.7733 + 1.9E-8 * dayNumber;
@@ -377,18 +376,17 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1-e * e) * sin(E);
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
+
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x =
-            b->distFromSun * cos(b->trueAnomly);
-        b->position.y =
-            b->distFromSun * sin(b->trueAnomly);
-        
+        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+
       } else if (b->name == "neptune") {
         double N = 131.7806 + 3.0173E-5 * dayNumber;
         double i = 1.7700 - 2.55E-7 * dayNumber;
@@ -406,21 +404,18 @@ class Body {
             M = M - 360;
           }
         }
-        double E =
-            M + e * (sin(M) * (180 / M_PI)) * (1 + e * (cos(M) * (180 / M_PI)));
-        double x = a * (cos(E) - e);
-        double y = a * sqrt(1-e * e) * sin(E);
+        double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
+                           (1 + e * (cos(M * M_PI / 180)));
+
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x =
-            b->distFromSun * cos(b->trueAnomly);
-        b->position.y =
-            b->distFromSun * sin(b->trueAnomly);
-        
+        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
+        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
       }
     }
-    
   }
   };
 
