@@ -1,11 +1,11 @@
 #include <time.h>
+
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <fstream>
-#include <time.h>
 
 using namespace std;
 
@@ -82,7 +82,7 @@ class JulianDate {
   int hour;
   int min;
   int second;
-  double jday;  
+  double jday;
 
  public:
   time_t theTime = time(NULL);
@@ -91,10 +91,9 @@ class JulianDate {
       : year(year), mon(mon), day(day), hour(hour), min(min), second(second) {
     jday = ((1461 * (year + 4800 + (mon - 14) / 12)) / 4 +
             (367 * (mon - 2 - 12 * ((mon - 14) / 12))) / 12 -
-            (3 * ((year + 4900 + (year - 14) / 12) / 100)) / 4 + day -
-            32075) +
+            (3 * ((year + 4900 + (year - 14) / 12) / 100)) / 4 + day - 32075) +
            (((hour + 12.0) / 24)) + (min / 1440.0) + (second / 86400.0);
-      }
+  }
 
   JulianDate() {
     year = aTime->tm_year + 1900;
@@ -120,8 +119,6 @@ class JulianDate {
   int getSec() const { return second; }
 
   double getJDay() const { return jday; }
-
-  
 
   double JD(JulianDate b) {
     double JDN = ((1461 * (b.year + 4800 + (b.mon - 14) / 12)) / 4 +
@@ -162,7 +159,6 @@ class JulianDate {
   }
 };
 
-
 class Body {
  private:
   Vector3D position;
@@ -189,7 +185,9 @@ class Body {
         Aphelion(),
         position(),
         velocity(),
-        acceleration(), distFromSun(), trueAnomly() {}
+        acceleration(),
+        distFromSun(),
+        trueAnomly() {}
 
   Vector3D getPosition() const { return position; }
   Vector3D getVelocity() const { return position; }
@@ -199,7 +197,7 @@ class Body {
   double getDiameter() const { return diameter; }
 
   friend ostream& operator<<(ostream& s, const Body b) {
-    return s << b.name << " " << b.position << " " << b.acceleration << " "
+    return s << b.name << ": " << b.distFromSun << "au "<< b.position << " " << b.acceleration << " "
              << b.velocity << " " << endl;
   }
 
@@ -212,9 +210,9 @@ class Body {
     return s;
   }
 
-  static void setPosition(vector<Body*> bodies) {  
+  static void setPosition(vector<Body*> bodies) {
     JulianDate currentTime;
-    
+
     double dayNumber = currentTime.getJDay() - 2451543.5;
     for (auto b : bodies) {
       string name = b->name;
@@ -238,14 +236,14 @@ class Body {
 
         double E = M + (180 / M_PI) * e * (sin(M * M_PI / 180)) *
                            (1 + e * (cos(M * M_PI / 180)));
-        
-        double x = a * (cos(E*M_PI/180) - e);
-        double y = a * sqrt(1 - (e * e)) * sin(E*M_PI/180);
+
+        double x = a * (cos(E * M_PI / 180) - e);
+        double y = a * sqrt(1 - (e * e)) * sin(E * M_PI / 180);
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly*M_PI/180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly*M_PI/180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
 
       } else if (b->name == "venus") {
         double N = 76.6799 + 2.46590E-5 * dayNumber;
@@ -272,8 +270,36 @@ class Body {
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
+
+      } else if(b->name=="earth") {
+        double l = 100.46435;
+        double p = 102.94719;
+        double n = 0.98630136986;
+        double e = 0.01671;
+        double a = 1.0;
+
+        double M = n * dayNumber + l - p;
+
+        if (M < 0) {
+          while (M < 0) {
+            M = M + 360;
+          }
+        }
+        if (M > 360) {
+          while (M > 360) {
+            M = M - 360;
+          }
+        }
+        
+        double v = M + 180 / M_PI * (((2 * e - pow(e,0.75)) * sin(M*M_PI/180) + 5.0 / 4.0 * pow(e,2) * sin(2 * M*M_PI/180) + 13.0 / 12.0 * pow(e,3) * sin(3 * M*M_PI/180)));
+        b->trueAnomly = v;
+        double r = a * ((1 - pow(e, 2)) / (1 + e * cos(v * M_PI / 180)));
+        b->distFromSun = r;
+        b->position.x = r * cos(v*M_PI/180);
+        b->position.y = r * sin(v*M_PI/180);
+        
 
       } else if (b->name == "mars") {
         double N = 49.5574 + 2.11081E-5 * dayNumber;
@@ -300,8 +326,8 @@ class Body {
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
 
       } else if (b->name == "jupiter") {
         double N = 100.4542 + 2.76854E-5 * dayNumber;
@@ -328,8 +354,8 @@ class Body {
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
 
       } else if (b->name == "saturn") {
         double N = 113.6634 + 2.38980E-5 * dayNumber;
@@ -356,8 +382,8 @@ class Body {
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
 
       } else if (b->name == "uranus") {
         double N = 74.0005 + 1.3978E-5 * dayNumber;
@@ -384,8 +410,8 @@ class Body {
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
 
       } else if (b->name == "neptune") {
         double N = 131.7806 + 3.0173E-5 * dayNumber;
@@ -412,45 +438,41 @@ class Body {
 
         b->distFromSun = sqrt(x * x + y * y);
         b->trueAnomly = atan2(y, x);
-        b->position.x = b->distFromSun * cos(b->trueAnomly * M_PI / 180);
-        b->position.y = b->distFromSun * sin(b->trueAnomly * M_PI / 180);
+        b->position.x = b->distFromSun * cos(b->trueAnomly);
+        b->position.y = b->distFromSun * sin(b->trueAnomly);
       }
     }
   }
-  };
+};
 
 class Solarsystem {
-  private:
-   vector<Body*> bodies;
+ private:
+  vector<Body*> bodies;
 
-  public:
-   Solarsystem() {
-     
-      Body* sun = new Body("sun");
-      Body* mercury = new Body("mercury");
-      Body* venus = new Body("venus");
-      Body* earth = new Body("earth");
-      Body* mars = new Body("mars");
-      Body* jupiter = new Body("jupiter");
-      Body* saturn = new Body("saturn");
-      Body* uranus = new Body("uranus");
-      Body* neptune = new Body("neptune");
+ public:
+  Solarsystem() {
+    Body* sun = new Body("sun");
+    Body* mercury = new Body("mercury");
+    Body* venus = new Body("venus");
+    Body* earth = new Body("earth");
+    Body* mars = new Body("mars");
+    Body* jupiter = new Body("jupiter");
+    Body* saturn = new Body("saturn");
+    Body* uranus = new Body("uranus");
+    Body* neptune = new Body("neptune");
 
-      bodies.push_back(sun);
-      bodies.push_back(mercury);
-      bodies.push_back(venus);
-      bodies.push_back(earth);
-      bodies.push_back(mars);
-      bodies.push_back(jupiter);
-      bodies.push_back(saturn);
-      bodies.push_back(uranus);
-      bodies.push_back(neptune);
+    bodies.push_back(sun);
+    bodies.push_back(mercury);
+    bodies.push_back(venus);
+    bodies.push_back(earth);
+    bodies.push_back(mars);
+    bodies.push_back(jupiter);
+    bodies.push_back(saturn);
+    bodies.push_back(uranus);
+    bodies.push_back(neptune);
 
-      Body::setPosition(bodies);
-      
-
-   }
-
+    Body::setPosition(bodies);
+  }
 
   ~Solarsystem() {
     for (auto b : bodies) {
