@@ -1,11 +1,14 @@
-#include <time.h>
 
+#include <time.h>
 #include <cmath>
-#include <fstream>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
+
+
+
 
 using namespace std;
 
@@ -229,7 +232,6 @@ class Body {
 
   static void setPosition(vector<Body*> bodies) {
     JulianDate currentTime;
-
     double dayNumber = currentTime.getJDay() - 2451545.00000;
     for (auto b : bodies) {
       if (b->name != "Sun") {
