@@ -1,14 +1,12 @@
 
 #include <time.h>
+
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <string>
 #include <vector>
-
-
-
 
 using namespace std;
 
@@ -236,7 +234,7 @@ class Body {
     for (auto b : bodies) {
       if (b->name != "Sun") {
         double M = b->m + b->n * dayNumber;
-
+        cout << b->m << endl;
         if (M < 0) {
           while (M < 0) {
             M = M + 360;
@@ -320,7 +318,7 @@ class Solarsystem {
   ifstream f;
 
  public:
-  Solarsystem(const char* filename) : f("solarsystem.txt") {
+  Solarsystem(const char* filename) : f(filename) {
     char buf[1024];
     f.getline(buf, sizeof(buf));
 
